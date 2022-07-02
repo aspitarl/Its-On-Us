@@ -55,9 +55,12 @@ dfs_out = []
 for phrase in CDDC_phrases:
 
     df_temp = df_response[df_response['comments'].str.lower().str.contains(phrase).fillna(False)]
+    df_temp['special'] = 'CDDC'
     dfs_out.append(df_temp)
 
 df_payout = pd.concat(dfs_out)
+
+# df_payout.to_csv('dataset_CDDC.csv')
 
 logger.info("{} entries found with CDDC phrases".format(len(df_payout)))
 
@@ -75,9 +78,11 @@ PN_NA = [pn for pn in PN_r if pn not in PN_PA]
 
 logger.info("Adding {} numbers without any awards yet".format(len(PN_NA)))
 
+df_no_awards = df_response[df_response['phone_number'].isin(PN_NA)]
+df_no_awards['num_prev_awards'] = 0
 
 df_payout = pd.concat(
-    [df_payout, df_response[df_response['phone_number'].isin(PN_NA)]]
+    [df_payout, df_no_awards]
 )
 
 
@@ -104,6 +109,7 @@ for n_awards in set(awards_by_PN.values):
 
     PN_na = awards_by_PN.where(awards_by_PN==n_awards).dropna().index
     df_na = df_response[df_response['phone_number'].isin(PN_na)]
+    df_na['num_prev_awards'] = n_awards
     money_na = df_na['meals'].sum()
 
     logger.info("{} phone numbers recieved {} Awards for a total of {} dollars".format(
@@ -114,7 +120,7 @@ for n_awards in set(awards_by_PN.values):
 
     if total_payout + money_na > MAX_AMOUNT:
         logger.info('Reached maximum amount of award money')
-        df_last = df_na.set_index('phone_number')
+        df_last = df_na#.set_index('phone_number')
         break
 
 
@@ -124,7 +130,10 @@ for n_awards in set(awards_by_PN.values):
 
     total_payout = df_payout_new['meals'].sum()
 
+df_payout = df_payout_new
 #%%
+
+#TODO: this should be a function that can be applied to each intermediate dataset
 
 if not isinstance(df_last, type(None)):
     logger.info("splitting final dataset based on priority group")
@@ -132,6 +141,8 @@ if not isinstance(df_last, type(None)):
     #TODO: do this earlier?
     df_last['age_group'] = df_last['age_group'].str.lower()
     df_last['community'] = df_last['community'].str.lower()
+
+    df_last['special'] = 'Last Group'
 
     # Now for the last dataset, we group by priority group
 
@@ -148,6 +159,8 @@ if not isinstance(df_last, type(None)):
         ('community', 'Survivor')
     ]
 
+    #TODO: sorting based on sortby key lookup instead? 
+
     dfs = []
 
     for group in priority_groups:
@@ -155,16 +168,24 @@ if not isinstance(df_last, type(None)):
         group_col = group[0]
 
         df_group = df_last[df_last[group_col].str.contains(group_str)]
+
+        logger.info("Found {} entries containin {}".format(len(df_group), group_str))
+
         dfs.append(df_group)
 
     df_priority = pd.concat(dfs).drop_duplicates()
 
-
-    df_priority['meals'].sum()
-
-
-    df_priority
-
+    df_payout = pd.concat(
+        [df_payout, df_priority]
+    )
 #%%
 
-df_priority
+unnamed_cols = [c for c in df_payout.columns if 'Unnamed' in c]
+
+df_payout = df_payout.drop(['comments', 'statements_past_month','covid impact', *unnamed_cols], axis=1)
+
+
+
+df_payout.to_csv('output/payout_dataset.csv')
+
+# %%
