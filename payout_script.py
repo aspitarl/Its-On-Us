@@ -34,7 +34,7 @@ df_response.index = pd.to_datetime(df_response.index)
 df_response = df_response.drop_duplicates(subset='phone_number')
 
 # How far back will be awarding to
-NEW_AWARD_LOOKBACK_TIME = np.timedelta64(10,'W')
+NEW_AWARD_LOOKBACK_TIME = np.timedelta64(1,'W')
 tw_responses = df_response.index[-1] - NEW_AWARD_LOOKBACK_TIME 
 df_response = df_response.loc[df_response.index > tw_responses]
 
