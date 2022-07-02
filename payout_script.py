@@ -93,7 +93,7 @@ df_payout = pd.concat(
 #Build payout dataset iterating through each group in order of number of awards previously received
 
 
-MAX_AMOUNT = 200
+MAX_AMOUNT = 27
 
 logger.info("Grouping by number of previous awards until reaching {} dollars".format(MAX_AMOUNT))
 
@@ -184,7 +184,7 @@ unnamed_cols = [c for c in df_payout.columns if 'Unnamed' in c]
 
 df_payout = df_payout.drop(['comments', 'statements_past_month','covid impact', *unnamed_cols], axis=1)
 
-
+df_payout['integrated_payout'] = np.cumsum(df_payout['meals'])
 
 df_payout.to_csv('output/payout_dataset.csv')
 
