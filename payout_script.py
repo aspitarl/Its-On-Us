@@ -67,37 +67,28 @@ df_payout.info()
 #%%
 
 #Group responses by how many previous awards they had recieved
-
-counts = df_a_tw['Phone Number'].value_counts().sort_values()
-
-dfs = []
-
-for n_awards in set(counts.values):
-
-    pn_n = counts.where(counts==n_awards).dropna().index
-    df_n = df_r_tw[df_r_tw['phone_number'].isin(pn_n)]
-    dfs.append(df_n)
-
-dfs
-
-#%%
-
 #Build payout dataset iterating through each group in order of number of awards previously received
 
-total_payout = df_payout['meals'].sum()
+MAX_AMOUNT = 50 #270
 
+
+total_payout = df_payout['meals'].sum()
 df_payout_new = df_payout.copy()
 
-for df in dfs:
+awards_by_PN = df_a_tw['Phone Number'].value_counts().sort_values()
 
-    if total_payout + df['meals'].sum() > MAX_AMOUNT:
+for n_awards in set(awards_by_PN.values):
+
+    pn_n = awards_by_PN.where(awards_by_PN==n_awards).dropna().index
+    df_n = df_r_tw[df_r_tw['phone_number'].isin(pn_n)]
+
+    if total_payout + df_n['meals'].sum() > MAX_AMOUNT:
         print('Reached maximum amount of award money')
-        df_last = df
+        df_last = df_n
         break
-    else:
 
-        df_payout_new = pd.concat(
-            [df_payout_new, df]
+    df_payout_new = pd.concat(
+            [df_payout_new, df_n]
         )
 
     total_payout = df_payout_new['meals'].sum()
