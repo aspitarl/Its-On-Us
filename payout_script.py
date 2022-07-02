@@ -4,30 +4,31 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import re
 
-MAX_AMOUNT = 50#270
 
 # %%
 
-df_awarded = pd.read_csv('input/awarded.csv', index_col=0)
-df_response = pd.read_csv('input/form_responses.csv', index_col=0)
-
-df_awarded.index = pd.to_datetime(df_awarded.index)
-
-df_response.index = [re.sub('2021(\S)',r'2021 \1', s) for s in df_response.index]
-df_response.index = pd.to_datetime(df_response.index)
-df_response = df_response.drop_duplicates(subset='phone_number')
-# 
-# %%
-# Setup columns for time windows (tw) we want to reference
-
-# How far back will be awarding to
-tw_responses = df_response.index[-1] - np.timedelta64(10,'W')
-df_r_tw = df_response.loc[df_response.index > tw_responses]
+# Datasset of previous awards
+df_prev_award = pd.read_csv('input/awarded.csv', index_col=0)
+df_prev_award.index = pd.to_datetime(df_prev_award.index)
 
 # how far back will we include previous awards
 #TODO: do we also need to exclude the response dataset from this reference?
-tw_awards =  df_awarded.index[-1]- np.timedelta64(6,'M')
-df_a_tw = df_awarded.loc[df_awarded.index > tw_awards]
+PREV_AWARD_LOOKBACK_TIME = np.timedelta64(6,'M')
+tw_awards =  df_prev_award.index[-1]- PREV_AWARD_LOOKBACK_TIME 
+df_prev_award = df_prev_award.loc[df_prev_award.index > tw_awards]
+
+
+#Dataset of responses
+df_response = pd.read_csv('input/form_responses.csv', index_col=0)
+df_response.index = [re.sub('2021(\S)',r'2021 \1', s) for s in df_response.index]
+df_response.index = pd.to_datetime(df_response.index)
+df_response = df_response.drop_duplicates(subset='phone_number')
+
+# How far back will be awarding to
+NEW_AWARD_LOOKBACK_TIME = np.timedelta64(10,'W')
+tw_responses = df_response.index[-1] - NEW_AWARD_LOOKBACK_TIME 
+df_response = df_response.loc[df_response.index > tw_responses]
+
 
 #%%
 
@@ -44,7 +45,7 @@ dfs_out = []
 
 for phrase in CDDC_phrases:
 
-    df_temp = df_r_tw[df_r_tw['comments'].str.lower().str.contains(phrase).fillna(False)]
+    df_temp = df_response[df_response['comments'].str.lower().str.contains(phrase).fillna(False)]
     dfs_out.append(df_temp)
 
 df_payout = pd.concat(dfs_out)
@@ -52,15 +53,15 @@ df_payout
 #%%
 
 # Remove phone numbers added to payout
-pn_r = df_r_tw['phone_number'].value_counts().index
-pn_r = [pn for pn in pn_r if pn not in df_payout['phone_number'].values]
+PN_r = df_response['phone_number'].value_counts().index
+PN_r = [pn for pn in PN_r if pn not in df_payout['phone_number'].values]
 
 #remove phone numbers in awarded dataset (see TODO above)
-pn_a = df_a_tw['Phone Number'].value_counts().index
-pn_0 = [pn for pn in pn_r if pn not in pn_a]
+PN_a = df_prev_award['Phone Number'].value_counts().index
+PN_0 = [pn for pn in PN_r if pn not in PN_a]
 
 df_payout = pd.concat(
-    [df_payout, df_r_tw[df_r_tw['phone_number'].isin(pn_0)]]
+    [df_payout, df_response[df_response['phone_number'].isin(PN_0)]]
 )
 
 df_payout.info()
@@ -75,12 +76,12 @@ MAX_AMOUNT = 50 #270
 total_payout = df_payout['meals'].sum()
 df_payout_new = df_payout.copy()
 
-awards_by_PN = df_a_tw['Phone Number'].value_counts().sort_values()
+awards_by_PN = df_prev_award['Phone Number'].value_counts().sort_values()
 
 for n_awards in set(awards_by_PN.values):
 
-    pn_n = awards_by_PN.where(awards_by_PN==n_awards).dropna().index
-    df_n = df_r_tw[df_r_tw['phone_number'].isin(pn_n)]
+    PN_n = awards_by_PN.where(awards_by_PN==n_awards).dropna().index
+    df_n = df_response[df_response['phone_number'].isin(PN_n)]
 
     if total_payout + df_n['meals'].sum() > MAX_AMOUNT:
         print('Reached maximum amount of award money')
