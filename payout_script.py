@@ -120,7 +120,7 @@ for n_awards in set(awards_by_PN.values):
 
     if total_payout + money_na > MAX_AMOUNT:
         logger.info('Reached maximum amount of award money')
-        df_last = df_na#.set_index('phone_number')
+        df_last_group = df_na#.set_index('phone_number')
         break
 
 
@@ -135,14 +135,14 @@ df_payout = df_payout_new
 
 #TODO: this should be a function that can be applied to each intermediate dataset
 
-if not isinstance(df_last, type(None)):
+if not isinstance(df_last_group, type(None)):
     logger.info("splitting final dataset based on priority group")
 
     #TODO: do this earlier?
-    df_last['age_group'] = df_last['age_group'].str.lower()
-    df_last['community'] = df_last['community'].str.lower()
+    df_last_group['age_group'] = df_last_group['age_group'].str.lower()
+    df_last_group['community'] = df_last_group['community'].str.lower()
 
-    df_last['special'] = 'Last Group'
+    df_last_group['special'] = 'Last Group'
 
     # Now for the last dataset, we group by priority group
 
@@ -167,7 +167,7 @@ if not isinstance(df_last, type(None)):
         group_str = group[1].lower()
         group_col = group[0]
 
-        df_group = df_last[df_last[group_col].str.contains(group_str)]
+        df_group = df_last_group[df_last_group[group_col].str.contains(group_str)]
 
         logger.info("Found {} entries containin {}".format(len(df_group), group_str))
 
