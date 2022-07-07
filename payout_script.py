@@ -44,25 +44,28 @@ df_response = df_response.loc[df_response.index > tw_responses]
 # Pull out entries with these phrases in them to be paid out 
 # This also forms the payout dataset (even if blank)
 
-CDDC_phrases =[
+#These are the words we will search for in the first tier. A python list of lowercase strings
+#TODO: upgrade to use regular expressions
+first_tier_phrases =[
     'cddc',
     'corvallis drop',
-    'corvallis daytime'
+    'corvallis daytime',
+    'naacp'
 ]
 
 dfs_out = []
 
-for phrase in CDDC_phrases:
+for phrase in first_tier_phrases:
 
     df_temp = df_response[df_response['comments'].str.lower().str.contains(phrase).fillna(False)]
-    df_temp['special'] = 'CDDC'
+    df_temp['special'] = 'first_tier'
     dfs_out.append(df_temp)
 
 df_payout = pd.concat(dfs_out)
 
-# df_payout.to_csv('dataset_CDDC.csv')
+# df_payout.to_csv('dataset_first_tier.csv')
 
-logger.info("{} entries found with CDDC phrases".format(len(df_payout)))
+logger.info("{} entries found with first_tier phrases".format(len(df_payout)))
 
 #%%
 
