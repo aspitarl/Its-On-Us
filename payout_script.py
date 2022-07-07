@@ -182,7 +182,7 @@ if not isinstance(df_last_group, type(None)):
 
 unnamed_cols = [c for c in df_payout.columns if 'Unnamed' in c]
 
-df_payout = df_payout.drop(['comments', 'statements_past_month','covid impact', *unnamed_cols], axis=1)
+df_payout = df_payout.drop(['statements_past_month','covid_impact', *unnamed_cols], axis=1)
 
 df_payout['integrated_payout'] = np.cumsum(df_payout['meals'])
 
