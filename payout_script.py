@@ -38,7 +38,7 @@ df_response.index = pd.to_datetime(df_response.index)
 # df_response = df_response.drop_duplicates(subset='phone_number')
 
 # How far back will be awarding to
-NEW_AWARD_LOOKBACK_TIME = np.timedelta64(1,'W')
+NEW_AWARD_LOOKBACK_TIME = np.timedelta64(2,'W')
 tw_responses = df_response.index[-1] - NEW_AWARD_LOOKBACK_TIME 
 df_response = df_response.loc[df_response.index > tw_responses]
 
@@ -96,7 +96,7 @@ logger.info("{} entries found with first_tier phrases".format(len(df_payout)))
 PN_r = df_response['phone_number'].value_counts().index
 PN_r = [pn for pn in PN_r if pn not in df_payout['phone_number'].values]
 
-logger.info("{} unique repsonse phone numbers without CDDC phrases".format(len(PN_r)))
+logger.info("{} unique repsonse phone numbers without first_tier phrases".format(len(PN_r)))
 
 #Immediately add phone number not in previously awarded dataset
 PN_PA = df_prev_award['phone_number'].value_counts().index
