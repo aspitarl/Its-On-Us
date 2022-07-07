@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import re
 import logging
 import os
+import phonenumbers
 
 if not os.path.exists('output'): os.mkdir('output')
 
@@ -41,6 +42,25 @@ NEW_AWARD_LOOKBACK_TIME = np.timedelta64(1,'W')
 tw_responses = df_response.index[-1] - NEW_AWARD_LOOKBACK_TIME 
 df_response = df_response.loc[df_response.index > tw_responses]
 
+
+#%%
+
+def format_PN(PN_string):
+    try:
+        x = phonenumbers.parse(PN_string,'US')
+        formatted_str = phonenumbers.format_number(x, phonenumbers.PhoneNumberFormat.NATIONAL)
+
+        #TODO: does phonenumbers package have the format we want to avoid this hacky mess
+        formatted_str = formatted_str.replace('(','').replace(')','').replace(' ','').replace('-', '')
+        return formatted_str
+    except phonenumbers.NumberParseException:
+        logger.info("Detected invalid phone number: {}:".format(PN_string) )
+
+        return np.nan
+
+
+df_response['phone_number'] = df_response['phone_number'].apply(format_PN)
+df_prev_award['phone_number'] = df_prev_award['phone_number'].apply(format_PN)
 
 #%%
 
