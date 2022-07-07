@@ -4,6 +4,9 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import re
 import logging
+import os
+
+if not os.path.exists('output'): os.mkdir('output')
 
 #Setup file logging that works with IPython console  https://stackoverflow.com/questions/18786912/get-output-from-the-logging-module-in-ipython-notebook
 logging.basicConfig()
