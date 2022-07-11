@@ -35,13 +35,13 @@ df_prev_award = df_prev_award.loc[df_prev_award.index > tw_awards]
 df_response = pd.read_csv('input/form_responses.csv', index_col=0)
 df_response.index = [re.sub('2021(\S)',r'2021 \1', s) for s in df_response.index]
 df_response.index = pd.to_datetime(df_response.index)
-# df_response = df_response.drop_duplicates(subset='phone_number')
+
 
 # How far back will be awarding to
-NEW_AWARD_LOOKBACK_TIME = np.timedelta64(2,'W')
+NEW_AWARD_LOOKBACK_TIME = np.timedelta64(22,'D')
 tw_responses = df_response.index[-1] - NEW_AWARD_LOOKBACK_TIME 
 df_response = df_response.loc[df_response.index > tw_responses]
-
+df_response = df_response.drop_duplicates(subset='phone_number')
 
 #%%
 
