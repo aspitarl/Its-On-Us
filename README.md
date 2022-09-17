@@ -23,3 +23,22 @@ This means all identifying information such as phone number, comments, and demog
 
 `form_responses.csv`: The responses dataset. Has the following columns: 
 * Timestamp,phone_number,meals,comments,community,statements_past_month,age_group,covid_impact,,,
+
+
+## Instructions
+
+open vscode 
+ctrl+~ to open terminal 
+if it says history restored press trashcan symbol and reopen terminal
+if not working do ctrl+shit+P -> select python interpreter -> its on us -> base, then reopen the terminal
+
+
+if it says (base)  you are good to go
+
+run in terminal `python payout_scripy.py`
+
+
+## Error quick fixes 
+
+`UnicodeDecodeError: 'utf-8' codec can't decode byte 0x92 in position 1322: invalid start byte`
+Thrown when csv file has weird character, was fixed by opening csv in vscode and removing the last row
