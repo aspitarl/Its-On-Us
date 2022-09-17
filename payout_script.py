@@ -22,7 +22,7 @@ logger.info('Starting Payout Script')
 # %%
 
 # Datasset of previous awards
-df_prev_award = pd.read_csv('input/awarded.csv', index_col=0)
+df_prev_award = pd.read_csv('input/awarded.csv', index_col=0, encoding='utf-8')
 df_prev_award.index = pd.to_datetime(df_prev_award.index)
 
 # how far back will we include previous awards
@@ -32,7 +32,7 @@ df_prev_award = df_prev_award.loc[df_prev_award.index > tw_awards]
 
 
 #Dataset of responses
-df_response = pd.read_csv('input/form_responses.csv', index_col=0)
+df_response = pd.read_csv('input/form_responses.csv', index_col=0, encoding='utf-8')
 df_response.index = [re.sub('2021(\S)',r'2021 \1', s) for s in df_response.index]
 df_response.index = pd.to_datetime(df_response.index)
 
