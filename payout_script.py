@@ -120,7 +120,7 @@ df_payout = pd.concat(
 #Build payout dataset iterating through each group in order of number of awards previously received
 
 
-MAX_AMOUNT = 275
+MAX_AMOUNT = 360
 
 logger.info("Grouping by number of previous awards until reaching {} dollars".format(MAX_AMOUNT))
 
