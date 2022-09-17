@@ -59,9 +59,8 @@ def format_PN(PN_string):
         return np.nan
 
 
-df_response['phone_number'] = df_response['phone_number'].apply(format_PN)
-df_prev_award['phone_number'] = df_prev_award['phone_number'].apply(format_PN)
-
+df_response['phone_number'] = df_response['phone_number'].astype(str).apply(format_PN)
+df_prev_award['phone_number'] = df_prev_award['phone_number'].astype(str).apply(format_PN)
 #%%
 
 # Pull out entries with these phrases in them to be paid out 
