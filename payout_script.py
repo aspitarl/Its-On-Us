@@ -194,7 +194,10 @@ if not isinstance(df_last_group, type(None)):
         group_str = group[1].lower()
         group_col = group[0]
 
-        df_group = df_last_group[df_last_group[group_col].str.contains(group_str)]
+        # If the priority group is missing, duplicate index causes issues, so just replace missing values with False to keep index the same. 
+        contains_priority_str = df_last_group[group_col].str.contains(group_str)
+        contains_priority_str = contains_priority_str.fillna(False)
+        df_group = df_last_group[contains_priority_str]
 
         logger.info("Found {} entries containin {}".format(len(df_group), group_str))
 
