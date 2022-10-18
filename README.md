@@ -35,7 +35,7 @@ if not working do ctrl+shit+P -> select python interpreter -> its on us -> base,
 
 if it says (base)  you are good to go
 
-run in terminal `python payout_scripy.py`
+run in terminal `python payout_script.py`
 
 
 ## Error quick fixes 
